@@ -1,0 +1,6 @@
+.DS_Store
+.app.py.swp
+.idea
+__pycache__/
+app.pyc
+
