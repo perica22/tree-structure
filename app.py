@@ -11,11 +11,11 @@ ENVIRONMENT = environ.get("MODE")
 
 @app.route('/search', methods = ['POST'])
 def getAll():
-    import ipdb
-    ipdb.set_trace()
-    # query = {"query": {"match": {"DS_Name": request.json}}}
-    query = {"query": {"match_all": {}}}
-    search_result = es.search(index='customers', body=query)
+    #import ipdb
+    #ipdb.set_trace()
+    query = {"query": {"match": {"DS_Name": request.json}}}
+    #query = {"query": {"match_all": {}}}
+    search_result = es.search(index='documents', body=query)
 
     if not search_result:
         return 'No matches found!'
