@@ -6,26 +6,35 @@ from flask import request, jsonify
 
 from app.delete import Node, Tree
 
+import ipdb
+
+
 
 @APP.route('/search', methods = ['POST'])
 def getAll():
-    
-    query = {"query": {"match": {"DS_Name": request.json}}}
+    query = {
+                "query" : {
+                    "wildcard" : {
+                        "DS_Name" : "*{}*".format(request.json)
+                    }
+                }
+            }
     search_result = ES.search(index='documents', body=query)
 
     if not ENVIRONMENT:
         return jsonify({'error': 'Please provide MODE variable'})
 
-    if not search_result:
-        return 'No matches found'
+    if not search_result['hits']['hits']:
+        return jsonify([]), 200
 
     if ENVIRONMENT =='files':
-        new_path = tree(search_result['hits'])
+        tree_structure = tree(search_result['hits']['hits'])
+
+        return jsonify([tree_structure]), 200
 
         my_path = path_files(search_result)
         result = tree_files(my_path)
 
-        return jsonify(result)
     elif ENVIRONMENT == 'files_and_folders':
         my_path, my_folders = path_folders(search_result)
         sub_folders, result = tree_folders(my_path, my_folders)
@@ -35,30 +44,38 @@ def getAll():
 
 
 def tree(search):
-    import ipdb
-    #ipdb.set_trace()
-    tree = Tree()
+    tree = Tree(root=search[0]['_source']['DS_Parent'], leafs=search)
 
-    for file in search['hits']:        
-
+    for file in tree.leafs: 
         node = Node(file)
-        tree.root = node.data['DS_Parent']
-        tree.structure = node.data
+        if not tree.structure:
+            tree.structure = node.data
 
-        while(tree.root != 'null'):
-            #searching for next folder in main_path
-            search = ES.search(index='documents', body={'query': {'match': {'_id': tree.root}}})
+            while(tree.root != 'null'):
+                #searching for next folder in main_path
+                query = {
+                            'query': {
+                                'match': {
+                                    '_id': tree.root
+                                }
+                            }
+                        }
+                search = ES.search(index='documents', body=query)
 
-            node = Node(search['hits']['hits'][0])
-            tree.add_child(node.data)
+                node = Node(search['hits']['hits'][0])
+                tree.add_node(node.data)
+        else:
+            #for the branches
+            tree.branch = node.data
+            # search if parent file is present in tree.structure
+            # else query it and add to branch 
+            # continu until file is find in tree.structure
 
-    return jsonify(tree.structure)
 
+    return tree.structure
 
 #CREATING TREE PATH
 def path_files(search):
-    #import ipdb
-    #ipdb.set_trace()
 
     total = search['hits']['total']['value']
 
