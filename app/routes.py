@@ -3,13 +3,13 @@ from app import ES
 from app import ENVIRONMENT
 
 from flask import request, jsonify
-import numpy as np
+
+from app.delete import Node, Tree
 
 
 @APP.route('/search', methods = ['POST'])
 def getAll():
-    #import ipdb
-    #ipdb.set_trace()
+    
     query = {"query": {"match": {"DS_Name": request.json}}}
     search_result = ES.search(index='documents', body=query)
 
@@ -17,15 +17,16 @@ def getAll():
         return jsonify({'error': 'Please provide MODE variable'})
 
     if not search_result:
-        return 'No matches found!'
+        return 'No matches found'
 
-    if ENVIRONMENT  == 'files':
+    if ENVIRONMENT =='files':
+        new_path = tree(search_result['hits'])
+
         my_path = path_files(search_result)
         result = tree_files(my_path)
 
         return jsonify(result)
-
-    elif ENVIRONMENT  == 'files_and_folders':
+    elif ENVIRONMENT == 'files_and_folders':
         my_path, my_folders = path_folders(search_result)
         sub_folders, result = tree_folders(my_path, my_folders)
         final_tree = sub_tree(sub_folders, result)
@@ -33,11 +34,33 @@ def getAll():
         return jsonify(final_tree)
 
 
+def tree(search):
+    import ipdb
+    #ipdb.set_trace()
+    tree = Tree()
+
+    for file in search['hits']:        
+
+        node = Node(file)
+        tree.root = node.data['DS_Parent']
+        tree.structure = node.data
+
+        while(tree.root != 'null'):
+            #searching for next folder in main_path
+            search = ES.search(index='documents', body={'query': {'match': {'_id': tree.root}}})
+
+            node = Node(search['hits']['hits'][0])
+            tree.add_child(node.data)
+
+    return jsonify(tree.structure)
+
+
 #CREATING TREE PATH
 def path_files(search):
+    #import ipdb
+    #ipdb.set_trace()
 
-    hits = search['hits']['hits']
-    total = search['hits']['total']
+    total = search['hits']['total']['value']
 
     main_root = []
 
@@ -45,12 +68,12 @@ def path_files(search):
 
         leaf_root = []
 
-        file = hits[i]['_source']
+        file = search['hits']['hits'][i]['_source']
         parent = file['DS_Parent']
 
-        leaf_root.append(int(hits[i]['_id']))
+        leaf_root.append(int(search['hits']['hits'][i]['_id']))
 
-        while (parent != 'null'):
+        while(parent != 'null'):
             #searching for next file in main_path
             search = ES.search(index='documents', body={'query': {'match': {'_id': parent}}})
             hits2 = search['hits']['hits']
@@ -63,11 +86,11 @@ def path_files(search):
             # adding id to the path
             leaf_root.append(int(id))
 
-        #sorting and andding id's to main_path
+        #sorting and adding id's to main_path
         leaf_root = sorted(list(leaf_root), reverse=False)
         main_root.append(leaf_root)
 
-    main_root = np.array(main_root)
+    print(main_root)
 
     return (main_root)
 

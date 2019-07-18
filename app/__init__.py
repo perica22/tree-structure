@@ -9,4 +9,3 @@ ENVIRONMENT = environ.get("MODE")
 
 
 from app import routes
-
