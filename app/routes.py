@@ -34,8 +34,10 @@ def search():
         tree.add_node(tree.node)
 
         while tree.node["DS_Parent"] not in TREE_FILES: # or node.data["DS_Parent"] != "null"
-            #searching for next folder in branch
+            # searching for next folder in branch
             query = {"query": {"match": {"_id": tree.root}}}
+            # maybe i should query by must {_id: tree.root} and must {DS_Parent: tree.root} and must_not {DS_Type: file} which would return all folders from that file
+            # add them all to branch and save to TREE_FILES only those which are part of tree structure / not those which are added as part of folders mode variable
             search = ES.search(index="documents", body=query)
 
             node = tree.create_node(search["hits"]["hits"][0])
