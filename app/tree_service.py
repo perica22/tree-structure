@@ -3,7 +3,7 @@ import ipdb
 
 # global list of id’s to keep track of already added files to tree,
 # so we could skip searching for those which are not added
-TREE_FILES = ["null"] # TO-DO: make this redis list at some point
+#TREE_FILES = ["null"] # TO-DO: make this redis list at some point
 
 
 class Tree:
@@ -13,7 +13,6 @@ class Tree:
         self.branch = None
         self.node = None
         self.leafs = leafs
-        #self.mode = mode
 
     def create_node(self, data):
         self.node = data["_source"]
@@ -25,13 +24,12 @@ class Tree:
         if not self.branch:
             self.branch = obj
         elif mode:
-            self.branch['children'].append(obj)
+            [self.branch].append(obj)
         elif "children" in obj:
             obj["children"].append(self.branch)
             self.branch = obj
         
         self.root = self.branch["DS_Parent"]
-        TREE_FILES.append(obj["_id"])
 
     def _find_node(self, _id):
         item = self.master
@@ -40,11 +38,35 @@ class Tree:
 
         return item
 
-    def merge(self, _id):
+    def merge(self): # here you should accept master and branch value 
         if not self.master:
             self.master = self.branch
             self.branch=None
         else:
-            place_to_merge = self._find_node(_id)
-            place_to_merge["children"].append(self.branch)
-            self.branch=None
+            master_item = self.master['children']
+            branch_item = self.branch['children']
+            files_to_add = []
+            
+            while branch_item != []:
+                stop = False
+                for master_file in master_item:
+                    for branch_file in branch_item:
+                        if master_file['_id'] in branch_file['_id']:
+                            master_item = master_file['children']
+                            stop = True
+                            break
+                        else:
+                            files_to_add.append(branch_file)
+                    if stop:
+                        break
+                for file in files_to_add:
+                    master_item.append(file)
+                    if 'children' in file:
+                        self.branch = None
+                        return    
+                files_to_add = []
+                try: 
+                    branch_item = branch_file['children']
+                except KeyError:
+                    self.branch = None
+                    return

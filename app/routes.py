@@ -4,7 +4,7 @@ from app import ENVIRONMENT
 
 from flask import request, jsonify
 
-from app.tree_service import    Tree, TREE_FILES
+from app.tree_service import Tree
 
 import ipdb
 
@@ -27,13 +27,13 @@ def search():
     if not search:
         return jsonify([]), 200
 
-    tree = Tree(root=search[0]["_source"]["DS_Parent"], leafs=search) #mode=ENVIRONMENT)
+    tree = Tree(root=search[0]["_source"]["DS_Parent"], leafs=search)
 
     for file in tree.leafs:
         node = tree.create_node(file)
         tree.add_node(tree.node)
 
-        while tree.node["DS_Parent"] not in TREE_FILES: # or node.data["DS_Parent"] != "null"
+        while tree.node["DS_Parent"] != 'null': # or node.data["DS_Parent"] != "null"
             # searching for next folder in branch
             query = {"query": {"match": {"_id": tree.root}}}
             # maybe i should query by must {_id: tree.root} and must {DS_Parent: tree.root} and must_not {DS_Type: file} which would return all folders from that file
@@ -42,21 +42,8 @@ def search():
 
             node = tree.create_node(search["hits"]["hits"][0])
             tree.add_node(tree.node)
-
-        # merging branch to master
-        tree.merge(tree.node["DS_Parent"])
-
-    return jsonify([tree.master]), 200
-
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
-
-
-'''
-if ENVIRONMENT == 'files_and_folders':
-                pass
+            if ENVIRONMENT == 'files':
+                
                 query = {
                           "query": {
                             "bool" : {
@@ -69,9 +56,15 @@ if ENVIRONMENT == 'files_and_folders':
                 search = ES.search(index="documents", body=query)
                 
                 for file in search['hits']['hits']:
-                   # ipdb.set_trace()
                     tree.create_node(file)
-                    if tree.node["_id"] not in TREE_FILES:
-                        #tree.create_node(file)
-                        tree.add_node(tree.node, mode=True)
-'''
+                    tree.add_node(tree.node, mode=True)
+
+        # merging branch to master
+        tree.merge() # TODO try to pass here master and branch values
+
+    return jsonify([tree.master]), 200
+
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", debug=True)
