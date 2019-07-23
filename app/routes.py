@@ -33,7 +33,7 @@ def search():
         node = tree.create_node(file)
         tree.add_node(tree.node)
 
-        while tree.node["DS_Parent"] != 'null': # or node.data["DS_Parent"] != "null"
+        while tree.root != 'null': # or node.data["DS_Parent"] != "null"
             # searching for next folder in branch
             query = {"query": {"match": {"_id": tree.root}}}
             # maybe i should query by must {_id: tree.root} and must {DS_Parent: tree.root} and must_not {DS_Type: file} which would return all folders from that file
@@ -42,13 +42,13 @@ def search():
 
             node = tree.create_node(search["hits"]["hits"][0])
             tree.add_node(tree.node)
-            if ENVIRONMENT == 'files':
+            if ENVIRONMENT == 'filses':
                 
                 query = {
                           "query": {
                             "bool" : {
                               "must" : {
-                                "term" : { "DS_Parent" : tree.node['DS_Parent'] }
+                                "term" : { "DS_Parent" : tree.node['_id'] }
                               },
                               "must_not" : {
                                 "term": {"DS_Type": "file"}
@@ -57,10 +57,11 @@ def search():
                 
                 for file in search['hits']['hits']:
                     tree.create_node(file)
-                    tree.add_node(tree.node, mode=True)
+                    tree.add_node(obj=tree.node, mode=True)
 
         # merging branch to master
-        tree.merge() # TODO try to pass here master and branch values
+        #ipdb.set_trace()
+        tree.merge(tree.master, tree.branch) # TODO try to pass here master and branch values
 
     return jsonify([tree.master]), 200
 
