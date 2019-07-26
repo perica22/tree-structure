@@ -4,66 +4,73 @@ from app import ENVIRONMENT
 
 from flask import request, jsonify
 
-from app.tree_service import Tree
+from app.tree_service import Tree, TREE_FILES
 
 import ipdb
 
-
+'''
+1. when adding files to master add them also to TREE_FIELS list to keep track of added ones
+2. then when creating branch create it until fiel id doesnt exist in TREE_FILES
+3. rest of fiels id's 
+'''
 
 @APP.route("/search", methods = ["POST"])
 def search():
-    if not ENVIRONMENT: # could be a decoretor
+    if not ENVIRONMENT:
         return jsonify({"error": "Please provide MODE variable"})
 
     query = {
-                "query" : {
-                    "wildcard" : {
-                       "DS_Name" : "*{}*".format(request.json)
-                    }
-                }
-            }
+            "query" : {
+                "wildcard" : {
+                   "DS_Name" : "*{}*".format(request.json)
+            }}}
     search = ES.search(index="documents", body=query)["hits"]["hits"]
-
     if not search:
         return jsonify([]), 200
 
+    # instance of tree class
     tree = Tree(root=search[0]["_source"]["DS_Parent"], leafs=search)
 
     for file in tree.leafs:
         node = tree.create_node(file)
         tree.add_node(tree.node)
 
-        while tree.root != 'null': # or node.data["DS_Parent"] != "null"
+        while tree.root != 'null': 
             # searching for next folder in branch
-            query = {"query": {"match": {"_id": tree.root}}}
-            # maybe i should query by must {_id: tree.root} and must {DS_Parent: tree.root} and must_not {DS_Type: file} which would return all folders from that file
-            # add them all to branch and save to TREE_FILES only those which are part of tree structure / not those which are added as part of folders mode variable
-            search = ES.search(index="documents", body=query)
+            search_files(tree)
 
-            node = tree.create_node(search["hits"]["hits"][0])
-            tree.add_node(tree.node)
-            if ENVIRONMENT == 'filses':
-                
-                query = {
-                          "query": {
-                            "bool" : {
-                              "must" : {
-                                "term" : { "DS_Parent" : tree.node['_id'] }
-                              },
-                              "must_not" : {
-                                "term": {"DS_Type": "file"}
-                              }}}}
-                search = ES.search(index="documents", body=query)
-                
-                for file in search['hits']['hits']:
-                    tree.create_node(file)
-                    tree.add_node(obj=tree.node, mode=True)
+            if ENVIRONMENT == 'files_and_folders': 
+                search_folders(tree)
 
         # merging branch to master
-        #ipdb.set_trace()
-        tree.merge(tree.master, tree.branch) # TODO try to pass here master and branch values
+        tree.merge(tree.master, tree.branch)
 
     return jsonify([tree.master]), 200
+
+
+def search_files(tree):
+    query = {"query": {"match": {"_id": tree.root}}}
+    search = ES.search(index="documents", body=query)
+
+    tree.create_node(search["hits"]["hits"][0])
+    tree.add_node(tree.node)
+
+def search_folders(tree):
+    query = {
+              "query": {
+                "bool" : {
+                  "must" : {
+                    "term" : { "DS_Parent" : tree.node['_id'] }
+                  },
+                  "must_not" : {
+                    "term": { "DS_Type": "file"}
+            }}}}
+    search = ES.search(index="documents", body=query)
+
+    for file in search['hits']['hits']:
+        if file['_id'] not in TREE_FILES:
+            tree.create_node(file)
+            tree.folders_list.append(tree.node)
 
 
 
