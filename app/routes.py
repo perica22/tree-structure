@@ -6,13 +6,7 @@ from flask import request, jsonify
 
 from app.tree_service import Tree, TREE_FILES
 
-import ipdb
 
-'''
-1. when adding files to master add them also to TREE_FIELS list to keep track of added ones
-2. then when creating branch create it until fiel id doesnt exist in TREE_FILES
-3. rest of fiels id's 
-'''
 
 @APP.route("/search", methods = ["POST"])
 def search():

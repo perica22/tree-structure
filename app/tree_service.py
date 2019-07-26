@@ -1,6 +1,3 @@
-import ipdb
-
-
 # global list of id’s to keep track of already added files to tree,
 # so we could skip searching for those which are not added
 TREE_FILES = ["null"] # TO-DO: make this redis list at some point
