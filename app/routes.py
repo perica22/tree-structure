@@ -5,10 +5,10 @@ from app import ENVIRONMENT
 from flask import request, jsonify
 
 from app.tree_service import Tree, TREE_FILES
+import ipdb
+        
 
-
-
-@APP.route("/search", methods = ["POST"])
+@APP.route("/search", methods=["POST"])
 def search():
     if not ENVIRONMENT:
         return jsonify({"error": "Please provide MODE variable"})
@@ -26,29 +26,50 @@ def search():
     tree = Tree(root=search[0]["_source"]["DS_Parent"], leafs=search)
 
     for file in tree.leafs:
-        node = tree.create_node(file)
-        tree.add_node(tree.node)
+        node = make_branch(file, tree)
+        #print(tree.branch)
 
-        while tree.root != 'null': 
-            search_files(tree)
-            if ENVIRONMENT == 'files_and_folders': 
-                search_folders(tree)
-
-        # merging branch to master
-        tree.merge(tree.master, tree.branch)
-
-    return jsonify([tree.master]), 200
+    return jsonify([tree.branch]), 200
 
 
-def search_files(tree):
-    """
-    Searching for next folder in branch path
-    """
+def make_branch(file, tree):
     query = {"query": {"match": {"_id": tree.root}}}
     search = ES.search(index="documents", body=query)
 
-    tree.create_node(search["hits"]["hits"][0])
-    tree.add_node(tree.node)
+    node = tree.create_node(search["hits"]["hits"][0])
+    if tree.root == 'null':
+        print("Returning to previous frame...!")
+        return tree.add_node(node)
+
+    return make_branch(file, tree)
+    #print("Returning to caller!")
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def search_folders(tree):
     """

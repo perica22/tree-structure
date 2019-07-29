@@ -7,10 +7,11 @@ class Tree:
     def __init__(self, root, leafs):
         self.root = root
         self.master = None
-        self.branch = None
+        self.branch = None #[]
         self.node = None
         self.leafs = leafs
         self.folders_list = []
+        self.count = 0
 
     def create_node(self, data):
         """
@@ -20,19 +21,19 @@ class Tree:
         self.node["_id"] = data["_id"]
         if self.node["DS_Type"] == "dir":
             self.node["children"] = []
+        self.root = self.node["DS_Parent"]
+        return self.node
 
     def add_node(self, obj):
         """
         Adding note to tree structure
         """
-        if not self.branch:
-            self.branch = obj
+        print(obj)
+        if self.branch:
+            self.branch['children'].append(obj)
         else:
-            obj["children"].append(self.branch)
             self.branch = obj
-
-        TREE_FILES.append(obj['_id'])
-        self.root = self.branch["DS_Parent"]
+        #return self.branch
 
     def merge(self, master_item, branch_item):
         """
