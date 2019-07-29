@@ -30,9 +30,7 @@ def search():
         tree.add_node(tree.node)
 
         while tree.root != 'null': 
-            # searching for next folder in branch
             search_files(tree)
-
             if ENVIRONMENT == 'files_and_folders': 
                 search_folders(tree)
 
@@ -43,6 +41,9 @@ def search():
 
 
 def search_files(tree):
+    """
+    Searching for next folder in branch path
+    """
     query = {"query": {"match": {"_id": tree.root}}}
     search = ES.search(index="documents", body=query)
 
@@ -50,6 +51,10 @@ def search_files(tree):
     tree.add_node(tree.node)
 
 def search_folders(tree):
+    """
+    Searching for additonal folders in case of
+    filse_and_folders MODE
+    """
     query = {
               "query": {
                 "bool" : {
