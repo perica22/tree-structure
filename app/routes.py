@@ -41,8 +41,9 @@ def make_branch(file, tree):
         print("Returning to previous frame...!")
         return tree.add_node(node)
 
-    return make_branch(file, tree)
-    #print("Returning to caller!")
+    result = make_branch(file, tree)
+    tree.add_node(node)
+    return result
      
 
 
