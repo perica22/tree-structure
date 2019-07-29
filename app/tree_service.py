@@ -38,23 +38,21 @@ class Tree:
             self.master = self.branch
             self.branch=None
         else:
-            try:
-                while True:
-                    for branch_file in branch_item['children']:
-                        for master_file in master_item['children']:
-                            if branch_file['_id'] == master_file['_id']:
-                                pointer = master_file
-                    if self.folders_list:
-                        self._add_folders(master_item)
-                    if pointer:
-                        master_item = pointer
-                        branch_item = branch_file
-                        pointer=False
-                    else:
-                        master_item['children'].append(branch_file)
-            except KeyError:
-                self.branch = None
-                return
+            while 'children' in branch_item:
+                for branch_file in branch_item['children']:
+                    for master_file in master_item['children']:
+                        if branch_file['_id'] == master_file['_id']:
+                            pointer = master_file
+                if self.folders_list:
+                    self._add_folders(master_item)
+                if pointer:
+                    master_item = pointer
+                    branch_item = branch_file
+                    pointer=False
+                else:
+                    master_item['children'].append(branch_file)
+                
+            self.branch = None
 
     def _add_folders(self, path):
         for folder in self.folders_list:
