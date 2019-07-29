@@ -42,7 +42,7 @@ def make_branch(file, tree):
         return tree.add_node(node)
 
     result = make_branch(file, tree)
-    tree.add_node(node)
+    tree.add_node(node) 
     return result
      
 

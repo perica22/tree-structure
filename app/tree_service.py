@@ -28,7 +28,7 @@ class Tree:
         """
         Adding note to tree structure
         """
-        print(self.root)
+        print(self .root)
         print(obj)
         if self.branch:
             self.branch['children'].append(obj)
