@@ -38,11 +38,12 @@ class Tree:
                     for file in self.pointer:
                         if file['_id'] == node['DS_Parent']:
                             self.pointer = file['children'] # here we add it to same list as previous one
+
                 # TODO this could be separate method
                 file_already_in_tree = False # TODO can this be better ???
                 for file in self.pointer:
                     if file['_id'] == node['_id']:
                         file_already_in_tree = True
-                        #break
+                        break
                 if not file_already_in_tree:
                     self.pointer.append(node)
