@@ -4,37 +4,66 @@ TREE_FILES = ["null"] # TO-DO: make this redis list at some point
 
 
 class Tree:
-    def __init__(self, root, leafs):
-        self.root = root
-        self.master = None
-        self.branch = None #[]
-        self.node = None
+    def __init__(self, leafs):
+        self.root = None
+        self.structure = []
         self.leafs = leafs
-        self.folders_list = []
-        self.count = 0
+        #self.folders_list = []
+        self.pointer = None
 
     def create_node(self, data):
         """
         Creating node for tree
         """
-        self.node = data["_source"]
-        self.node["_id"] = data["_id"]
-        if self.node["DS_Type"] == "dir":
-            self.node["children"] = []
-        self.root = self.node["DS_Parent"]
-        return self.node
+        node = data["_source"]
+        node["_id"] = data["_id"]
+        if node["DS_Type"] == "dir":
+            node["children"] = []
+
+        self.root = node["DS_Parent"]
+
+        return node
 
     def add_node(self, obj):
         """
         Adding note to tree structure
         """
-        print(self .root)
-        print(obj)
-        if self.branch:
-            self.branch['children'].append(obj)
-        else:
-            self.branch = obj
-        #return self.branch
+        if not self.structure:
+            self.structure.append(obj)
+            self.pointer = self.structure
+        else:  
+            if obj['DS_Parent'] != self.pointer[0]['DS_Parent']:
+                for file in self.pointer:
+                    if file['_id'] == obj['DS_Parent']:
+                        self.pointer = file['children'] # here we add it to same list as previous one 
+                
+            # TODO this could be separate method
+            file_already_in_tree = False # TODO can this be better ???
+            for file in self.pointer:
+                if file['_id'] == obj['_id']:
+                    file_already_in_tree = True
+            if not file_already_in_tree:
+                self.pointer.append(obj) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def merge(self, master_item, branch_item):
         """

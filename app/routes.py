@@ -6,13 +6,14 @@ from flask import request, jsonify
 
 from app.tree_service import Tree, TREE_FILES
 import ipdb
-        
+
 
 @APP.route("/search", methods=["POST"])
 def search():
-    if not ENVIRONMENT:
+    if not ENVIRONMENT: # TODO make this to be decorator 
         return jsonify({"error": "Please provide MODE variable"})
 
+    # TODO make this decorator also
     query = {
             "query" : {
                 "wildcard" : {
@@ -23,28 +24,35 @@ def search():
         return jsonify([]), 200
 
     # instance of tree class
-    tree = Tree(root=search[0]["_source"]["DS_Parent"], leafs=search)
+    tree = Tree(leafs=search)
 
     for file in tree.leafs:
-        node = make_branch(file, tree)
-        #print(tree.branch)
+        node = tree.create_node(file)
 
-    return jsonify([tree.branch]), 200
+        # calling this function recursivly to create tree
+        structure = create_tree(tree)
+        tree.add_node(node)
+
+        # resetting tree pointer to top of tree
+        tree.pointer = tree.structure
+
+    return jsonify(tree.structure), 200
 
 
-def make_branch(file, tree):
-    query = {"query": {"match": {"_id": tree.root}}}
-    search = ES.search(index="documents", body=query)
+def create_tree(tree):
+    query = {"query": {"match": {"_id": tree.root}}}# can be function decorator whihc would pass query here 
+    #try:
+    search = ES.search(index="documents", body=query)["hits"]["hits"][0]
 
-    node = tree.create_node(search["hits"]["hits"][0])
+    node = tree.create_node(search)
+
+    # base case for recursion
     if tree.root == 'null':
-        print("Returning to previous frame...!")
         return tree.add_node(node)
 
-    result = make_branch(file, tree)
+    structure = create_tree(tree)
     tree.add_node(node) 
-    return result
-     
+    return structure
 
 
 
