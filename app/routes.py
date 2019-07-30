@@ -30,7 +30,7 @@ def search():
         tree.add_node(tree.node)
 
         while tree.root != 'null': 
-            search_files(tree)
+            search_files(tree) 
             if ENVIRONMENT == 'files_and_folders': 
                 search_folders(tree)
 

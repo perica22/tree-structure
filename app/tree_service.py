@@ -63,4 +63,4 @@ class Tree:
         for folder in self.folders_list:
             if folder['DS_Parent'] == path['_id'] and folder['_id'] not in TREE_FILES:
                 path['children'].append(folder)
-                TREE_FILES.append(folder['_id'])
+                TREE_FILES.append(folder['_id']) 
