@@ -1,9 +1,11 @@
 # elasticsearch---flask
+# Task Description
 
 Tree structure created by retrieving data from ElasticSearch using Flask App
 You need to create tree search API with Python (Flask) and Elasticsearch. Let’s assume that we have
 
 following tree stored in Elasticsearch:
+```
 ● folder1
    ❍ folder2
     ■ folder3
@@ -35,9 +37,10 @@ following tree stored in Elasticsearch:
         ● xaby.txt
         ● lkAB.docx
        ■ qqa.docx
-       
+```       
        
 Now when we search for term "ab" API should return following tree:
+```
 ●folder1
   ❍ folder2
     ■ folder3
@@ -56,11 +59,12 @@ Now when we search for term "ab" API should return following tree:
     ■ folder6
       ● xaby.txt
       ● lkAB.docx
-      
+```      
 
-Elasticsearch
+## Elasticsearch
 This is an example of Elastic mapping you should use to store files and dirs:
 PUT documents
+```
 {
   "mappings": {
     "document": {
@@ -80,7 +84,7 @@ PUT documents
     }
   }
 }
-
+```
 Where DS_Name represent file/dir name, DS_Type represent a "file" or "dir" and DS_Parent is _id
 of parent dir where this file/dir is located (if DS_Parent is equal to null then it is root of the tree).
 
@@ -88,22 +92,26 @@ But you are not limited to this structure only rule is that you have parent fiel
 of parent directory of current file/dir. If you want to put some analyzer, change structure, addadditional fields, ... you can do that.
 
 
-API
+## API
 API should contain one POST route called /search which expect following parameters:
+```
 {
   "query": "ab"
 }
-
+```
 There are two modes for the search: - One will only search for files (MODE=files) - Other will search
 both for files and folders (MODE=files_and_folders)
 
 Which mode is active should be specified by providing environment variable MODE with one of
 following values:
-● files
-● files_and_folders
+```
+   ● files
+   ● files_and_folders
+```
 
-Example
+## Example
 if you search for "fo" in the above tree and if the MODE is equal to files result should be:
+```
 ● folder1
   ❍ folder2
     ■ folder4
@@ -113,9 +121,9 @@ if you search for "fo" in the above tree and if the MODE is equal to files resul
   ❍ folder5
     ■ folder6
       ● fo.docs
-      
+```      
 on the other hand if the MODE is equal to files_and_folders result should be:
-
+```
 ● folder1
   ❍ folder2
     ■ folder3
@@ -130,10 +138,11 @@ on the other hand if the MODE is equal to files_and_folders result should be:
     ■ folder6
       ● folder88
       ● fo.docs
+ ```     
       
-      
-Example of API output
+## Example of API output
 If following tree is result of search:
+```
 ● folder1
   ❍ folder2
     ■ folder4
@@ -143,8 +152,9 @@ If following tree is result of search:
     ■ c.txt
   ❍ folder5
     ■ d.docs
-
+```
 then API should return following JSON:
+```
 [
   {
     "_id": "1"
@@ -214,17 +224,17 @@ then API should return following JSON:
       ]
     }
  ]
+``` 
  
- 
-Docker
+## Docker
 
 You must provide docker-compose.yml file which will start two containers:
 ● One for Elasticsearch
 ● One for Flask API
 
 so app will be tested by running:
-
+```
   docker-compose -f docker-compose.yml up -d --build
- 
+ ```
 and then hitting API endpoint from the Postman tool. Keep in mind that your app will be run under
 some VM so you must expose proper ports (You can use docker-machine in order to test your app).
