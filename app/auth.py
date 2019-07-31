@@ -2,6 +2,7 @@ from app import ENVIRONMENT
 
 from functools import wraps
 
+from flask import jsonify
 
 
 def verify_mode_variable(function):

@@ -4,7 +4,7 @@ class Tree:
         self.root = None
         self.structure = []
         self.leafs = leafs
-        self.pointer = None
+        self.pointer = self.structure
 
     def create_node(self, data):
         """
@@ -42,7 +42,6 @@ class Tree:
         for node in nodes:
             if not self.structure:
                 self.structure.append(node)
-                self.pointer = self.structure
             else:
                 if node['DS_Parent'] != self.pointer[0]['DS_Parent']:
                     self._determine_pointer(node)
@@ -62,6 +61,7 @@ class Tree:
         if not self.root:
             self.root = int(node['DS_Parent'])
         elif node["DS_Parent"] != 'null' and self.root != 'null':
-            self.root = int(node["DS_Parent"]) if self.root > int(node["DS_Parent"]) else self.root
+            if self.root > int(node["DS_Parent"]):
+                self.root = int(node["DS_Parent"])
         else:
             self.root = 'null'
