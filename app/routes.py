@@ -4,7 +4,7 @@ from app import APP
 from app import ES
 
 from app.tree_service import Tree
-from app.auth import recursive_query_maker, verify_mode_variable, merge_sort
+from app.auth import recursive_query_maker, verify_mode_variable
 
 
 
