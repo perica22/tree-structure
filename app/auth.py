@@ -1,8 +1,7 @@
-from app import ENVIRONMENT
-
 from functools import wraps
 
-from flask import jsonify
+from app import ENVIRONMENT
+
 
 
 def verify_mode_variable(function):
@@ -11,13 +10,14 @@ def verify_mode_variable(function):
     """
     @wraps(function)
     def decorated():
+        error = None
         if not ENVIRONMENT:
-            return jsonify({"error": "You need to provide MODE variable"})
+            error = "You need to provide MODE variable"
 
         if ENVIRONMENT not in ['files', 'files_and_folders']:
-            return jsonify({"error": "MODE variable must be set to files or files_and_folders"})
+            error = "MODE variable must be set to files or files_and_folders"
 
-        return function()
+        return function(error)
     return decorated
 
 def recursive_query_maker(function):
@@ -28,16 +28,16 @@ def recursive_query_maker(function):
     @wraps(function)
     def decorated(tree):
         if ENVIRONMENT == 'files':
-            query = {"query": {"match": {"_id": tree.root}}}
+            query = {"query" : {"match" : {"_id" : tree.root}}}
         else:
-            query =  {
-                      "query": {
-                        "multi_match" : {
-                          "query": tree.root, 
-                          "fields": [ "_id", "DS_Parent" ] 
-                        }
-                      }
+            query = {
+                "query": {
+                    "multi_match" : {
+                        "query" : tree.root,
+                        "fields" : ["_id", "DS_Parent"]
                     }
+                }
+            }
         return function(tree, query)
     return decorated
 

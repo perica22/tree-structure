@@ -1,7 +1,7 @@
+from flask import request, jsonify
+
 from app import APP
 from app import ES
-
-from flask import request, jsonify
 
 from app.tree_service import Tree
 from app.auth import recursive_query_maker, verify_mode_variable, merge_sort
@@ -10,12 +10,20 @@ from app.auth import recursive_query_maker, verify_mode_variable, merge_sort
 
 @APP.route("/search", methods=["POST"])
 @verify_mode_variable
-def search():
+def search_api(error):
+    """
+    search API route returning tree structure of files and folders
+    """
+    if error:
+        return jsonify({"error": error})
+
     query = {
-            "query" : {
-                "wildcard" : {
-                   "DS_Name" : "*{}*".format(request.json)
-            }}}
+        "query" : {
+            "wildcard" : {
+                "DS_Name" : "*{}*".format(request.json)
+            }
+        }
+    }
     search = ES.search(index="documents", body=query)["hits"]["hits"]
     if not search:
         return jsonify([]), 200
@@ -27,7 +35,7 @@ def search():
         nodes = [tree.create_node(file)]
 
         # calling this function recursivly to create tree
-        structure = create_tree(tree)
+        create_tree(tree)
         tree.add_node(nodes)
 
         # resetting tree settings
@@ -38,18 +46,22 @@ def search():
 
 @recursive_query_maker
 def create_tree(tree, query=None):
+    """
+    Called recursivly to create tree structure
+    """
     nodes = []
-    
+
     search = ES.search(index="documents", body=query)["hits"]["hits"]
     search = merge_sort(search)
     for file in search:
         if file['_source']['DS_Type'] != 'file':
             node = tree.create_node(file)
             nodes.append(node)
-    
+
     # base case for recursion
     if tree.root == 'null':
         return tree.add_node(nodes)
+
     structure = create_tree(tree)
     tree.add_node(nodes)
 
@@ -58,4 +70,4 @@ def create_tree(tree, query=None):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    APP.run(host="0.0.0.0", debug=True)

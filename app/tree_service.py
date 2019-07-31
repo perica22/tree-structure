@@ -1,5 +1,8 @@
 
 class Tree:
+    """
+    Class handling tree structure creation
+    """
     def __init__(self, leafs):
         self.root = None
         self.structure = []
@@ -25,7 +28,6 @@ class Tree:
         """
         for file in self.pointer:
             if file['_id'] == node['DS_Parent']:
-                self.previous_pointer = self.pointer
                 self.pointer = file['children']
 
     def reset_values(self):
