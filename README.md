@@ -5,58 +5,58 @@ Tree structure created by retrieving data from ElasticSearch using Flask App
 You need to create tree search API with Python (Flask) and Elasticsearch. Let’s assume that we have following tree stored in Elasticsearch:
 ```
 ● folder1
-   ❍ folder2
-    ■ folder3
-      ● aBc.txt
-      ● ABb.txt
-      ● xyz.txt
-    ■ folder4
-      ● Folder10
-        ❍ oaxbco.pdf
-        ❍ ddAb.doc
-        ❍ folder111
-          ■ file.pdf
-          ■ fileab.zip
-          ■ somefile.doc
-          ■ fo.txt
-        ■ Kkk.zip
-        ■ Folder19
-          ● Dd.doc
-          ● Oacb.pdf
-          ● Folder32
-            ❍ Kab.pdf
-            ❍ ygabe.docx
-    ❍ kabcd.xls
-    ❍ folder5
-      ■ folder6
-        ●folder88
-          ❍ test.doc
-        ● fo.docs
-        ● xaby.txt
-        ● lkAB.docx
-       ■ qqa.docx
+      ❍ folder2
+          ■ folder3
+               ● aBc.txt
+               ● ABb.txt
+               ● xyz.txt
+         ■ folder4
+            ● Folder10
+              ❍ oaxbco.pdf
+              ❍ ddAb.doc
+              ❍ folder111
+                ■ file.pdf
+                ■ fileab.zip
+                ■ somefile.doc
+                ■ fo.txt
+           ■ Kkk.zip
+           ■ Folder19
+                ● Dd.doc
+                ● Oacb.pdf
+                ● Folder32
+                     ❍ Kab.pdf
+                     ❍ ygabe.docx
+       ❍ kabcd.xls
+       ❍ folder5
+            ■ folder6
+                 ●folder88
+                     ❍ test.doc
+                 ● fo.docs
+                 ● xaby.txt
+                 ● lkAB.docx
+            ■ qqa.docx
 ```       
        
 Now when we search for term "ab" API should return following tree:
 ```
 ●folder1
-  ❍ folder2
-    ■ folder3
-      ● aBc.txt
-      ● ABb.txt
-    ■ folder4
-      ● Folder10
-        ❍ ddAb.doc
-        ❍ folder111
-    ■ Folder19
-      ● Folder32
-        ❍ Kab.pdf
-        ❍ ygabe.docx
-  ❍ kabcd.xls
-  ❍ folder5
-    ■ folder6
-      ● xaby.txt
-      ● lkAB.docx
+     ❍ folder2
+         ■ folder3
+            ● aBc.txt
+            ● ABb.txt
+         ■ folder4
+            ● Folder10
+              ❍ ddAb.doc
+              ❍ folder111
+         ■ Folder19
+            ● Folder32
+              ❍ Kab.pdf
+              ❍ ygabe.docx
+        ❍ kabcd.xls
+        ❍ folder5
+            ■ folder6
+               ● xaby.txt
+               ● lkAB.docx
 ```      
 
 ## Elasticsearch
@@ -111,45 +111,45 @@ following values:
 if you search for "fo" in the above tree and if the MODE is equal to files result should be:
 ```
 ● folder1
-  ❍ folder2
-    ■ folder4
-      ● Folder10
-        ❍ folder111
-          ■ fo.txt
-  ❍ folder5
-    ■ folder6
-      ● fo.docs
+   ❍ folder2
+      ■ folder4
+         ● Folder10
+            ❍ folder111
+               ■ fo.txt
+   ❍ folder5
+      ■ folder6
+         ● fo.docs
 ```      
 on the other hand if the *MODE* is equal to files_and_folders result should be:
 ```
 ● folder1
-  ❍ folder2
-    ■ folder3
-    ■ folder4
-      ● Folder10
-        ❍ folder111
-          ■ fo.txt
+   ❍ folder2
+       ■ folder3
+       ■ folder4
+         ● Folder10
+            ❍ folder111
+               ■ fo.txt
 
-    ■ Folder19
-      ● Folder32
-  ❍ folder5
-    ■ folder6
-      ● folder88
-      ● fo.docs
+       ■ Folder19
+         ● Folder32
+   ❍ folder5
+      ■ folder6
+         ● folder88
+         ● fo.docs
  ```     
       
 ## Example of API output
 If following tree is result of search:
 ```
 ● folder1
-  ❍ folder2
-    ■ folder4
-      ● a.txt
-      ● b.txt
-    ■ Folder19
-    ■ c.txt
-  ❍ folder5
-    ■ d.docs
+   ❍ folder2
+      ■ folder4
+         ● a.txt
+         ● b.txt
+      ■ Folder19
+      ■ c.txt
+   ❍ folder5
+      ■ d.docs
 ```
 then API should return following JSON:
 ```
