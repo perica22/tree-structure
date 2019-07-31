@@ -2,9 +2,7 @@
 # Task Description
 
 Tree structure created by retrieving data from ElasticSearch using Flask App
-You need to create tree search API with Python (Flask) and Elasticsearch. Let’s assume that we have
-
-following tree stored in Elasticsearch:
+You need to create tree search API with Python (Flask) and Elasticsearch. Let’s assume that we have following tree stored in Elasticsearch:
 ```
 ● folder1
    ❍ folder2
@@ -63,26 +61,26 @@ Now when we search for term "ab" API should return following tree:
 
 ## Elasticsearch
 This is an example of Elastic mapping you should use to store files and dirs:
-PUT documents
 ```
+PUT documents
 {
-  "mappings": {
-    "document": {
-    "properties": {
-      "DS_Name": {
-        "type": "text"
-      },
-      "DS_Type": {
-        "type": "keyword",
-        "index": "not_analyzed"
-      },
-      "DS_Parent": {
-        "type": "keyword",
-        "index": "not_analyzed"
-        }
+   "mappings": {
+       "document": {
+       "properties": {
+            "DS_Name": {
+               "type": "text"
+         },
+         "DS_Type": {
+              "type": "keyword",
+              "index": "not_analyzed"
+         },
+         "DS_Parent": {
+              "type": "keyword",
+              "index": "not_analyzed"
+            }
+         }
       }
-    }
-  }
+   }
 }
 ```
 Where DS_Name represent file/dir name, DS_Type represent a "file" or "dir" and DS_Parent is _id
@@ -122,7 +120,7 @@ if you search for "fo" in the above tree and if the MODE is equal to files resul
     ■ folder6
       ● fo.docs
 ```      
-on the other hand if the MODE is equal to files_and_folders result should be:
+on the other hand if the *MODE* is equal to files_and_folders result should be:
 ```
 ● folder1
   ❍ folder2
@@ -156,73 +154,73 @@ If following tree is result of search:
 then API should return following JSON:
 ```
 [
-  {
-    "_id": "1"
-    "DS_Name": "folder1",
-    "DS_Type": "dir",
-    "DS_Parent": "null",
-    "children": [
-      {
-        "_id": "2",
-        "DS_Name": "folder2",
-        "DS_Type": "dir",
-        "DS_Parent": "1",
-        "children": [
-            {
-              "_id": "4",
-              "DS_Name": "folder4",
-              "DS_Type": "dir",
-              "DS_Parent": "2",
-              "children": [
-                  {
-                    "_id": "6",
-                    "DS_Name": "a.txt",
-                    "DS_Type": "file",
-                    "DS_Parent": "4",
-                    "children": []
-                  },
-                  {
-                    "_id": "7",
-                    "DS_Name": "b.txt",
-                    "DS_Type": "file",
-                    "DS_Parent": "4",
-                    "children": []
-                  },
-                ]
-              },
-              {
-                "_id": "5",
-                "DS_Name": "Folder19",
-                "DS_Type": "dir",
-                "DS_Parent": "2",
-                "children": []
-              },
-              {
-                "_id": "8",
-                "DS_Name": "c.txt",
-                "DS_Type": "file",
-                "DS_Parent": "2",
-                "children": []
-              }
+     {
+          "_id": "1"
+          "DS_Name": "folder1",
+          "DS_Type": "dir",
+          "DS_Parent": "null",
+          "children": [
+               {
+                    "_id": "2",
+                    "DS_Name": "folder2",
+                    "DS_Type": "dir",
+                    "DS_Parent": "1",
+                    "children": [
+                           {
+                             "_id": "4",
+                             "DS_Name": "folder4",
+                             "DS_Type": "dir",
+                             "DS_Parent": "2",
+                             "children": [
+                                    {
+                                      "_id": "6",
+                                      "DS_Name": "a.txt",
+                                      "DS_Type": "file",
+                                      "DS_Parent": "4",
+                                      "children": []
+                                    },
+                                    {
+                                      "_id": "7",
+                                      "DS_Name": "b.txt",
+                                      "DS_Type": "file",
+                                      "DS_Parent": "4",
+                                      "children": []
+                                    },
+                                 ]
+                             },
+                             {
+                               "_id": "5",
+                               "DS_Name": "Folder19",
+                               "DS_Type": "dir",
+                               "DS_Parent": "2",
+                               "children": []
+                             },
+                             {
+                               "_id": "8",
+                               "DS_Name": "c.txt",
+                               "DS_Type": "file",
+                               "DS_Parent": "2",
+                               "children": []
+                             }
+                           ]
+                      },
+                      {
+                        "_id": "3",
+                        "DS_Name": "folder5",
+                        "DS_Type": "dir",
+                        "DS_Parent": "1",
+                        "children": [
+                             {
+                               "_id": "9",
+                               "DS_Name": "d.docs",
+                               "DS_Type": "file",
+                               "DS_Parent": "3",
+                               "children": []
+                             }
+                       ]
+                  }
             ]
-          },
-          {
-            "_id": "3",
-            "DS_Name": "folder5",
-            "DS_Type": "dir",
-            "DS_Parent": "1",
-            "children": [
-              {
-                "_id": "9",
-                "DS_Name": "d.docs",
-                "DS_Type": "file",
-                "DS_Parent": "3",
-                "children": []
-              }
-           ]
-         }
-      ]
-    }
+       }
  ]
 ``` 
  
