@@ -2,6 +2,11 @@
 class Tree:
     """
     Class handling tree structure creation
+    Args:
+        root: current root folder of tree
+        structure: represents final tree structure
+        leafs: files from inital query(bottom of tree paths)
+        pointer: place for adding new tree node
     """
     def __init__(self, leafs):
         self.root = None
@@ -11,20 +16,26 @@ class Tree:
 
     def create_node(self, data):
         """
-        Creating node for tree
+        Creates tree node
+        Args:
+            data: query result used to create node
+        Returns:
+            new tree node
         """
         node = data["_source"]
         node["_id"] = data["_id"]
         if node["DS_Type"] == "dir":
             node["children"] = []
 
-        self._determine_root(node)
+        self._determine_root(node['DS_Parent'])
 
         return node
 
     def _determine_pointer(self, node):
         """
-        Changing tree pointer based on new node values
+        Changes tree pointer based on new node values
+        Args:
+            node: tree node that needs to be added to structure
         """
         for file in self.pointer:
             if file['_id'] == node['DS_Parent']:
@@ -32,14 +43,16 @@ class Tree:
 
     def reset_values(self):
         """
-        Resetting tree values
+        Resetting tree root and pointer values
         """
         self.pointer = self.structure
         self.root = None
 
     def add_node(self, nodes):
         """
-        Adding note to tree structure
+        Addes node to tree structure
+        Args:
+            nodes: list of tree nodes that needs to be added to structure
         """
         for node in nodes:
             if not self.structure:
@@ -56,14 +69,16 @@ class Tree:
                 if not file_already_in_tree:
                     self.pointer.append(node)
 
-    def _determine_root(self, node):
+    def _determine_root(self, new_parent):
         """
         Setting tree root after each new node created
+        Args:
+            new_parent: value of new tree root
         """
         if not self.root:
-            self.root = int(node['DS_Parent'])
-        elif node["DS_Parent"] != 'null' and self.root != 'null':
-            if self.root > int(node["DS_Parent"]):
-                self.root = int(node["DS_Parent"])
+            self.root = int(new_parent)
+        elif new_parent != 'null' and self.root != 'null':
+            if self.root > int(new_parent):
+                self.root = int(new_parent)
         else:
             self.root = 'null'

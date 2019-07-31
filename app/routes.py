@@ -12,7 +12,12 @@ from app.auth import recursive_query_maker, verify_mode_variable, merge_sort
 @verify_mode_variable
 def search_api(error):
     """
-    search API route returning tree structure of files and folders
+    Creates tree structure of files and folders by adding query
+    results to tree.leafs and creating path for each of them
+    Args:
+        error: error that verify_mode variable decorator is returning
+    Returns:
+        tree structure of files and folders
     """
     if error:
         return jsonify({"error": error})
@@ -48,6 +53,11 @@ def search_api(error):
 def create_tree(tree, query=None):
     """
     Called recursivly to create tree structure
+    Args:
+        tree: instance of tree class
+        query: ES query returned by recursive_query_maker decorator
+    Returns:
+        path for one file from tree.leaf
     """
     nodes = []
 
