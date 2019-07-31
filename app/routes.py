@@ -59,14 +59,10 @@ def create_tree(tree, query=None):
     Returns:
         path for one file from tree.leaf
     """
-    nodes = []
-
     search = ES.search(index="documents", body=query)["hits"]["hits"]
     search = merge_sort(search)
-    for file in search:
-        if file['_source']['DS_Type'] != 'file':
-            node = tree.create_node(file)
-            nodes.append(node)
+
+    nodes = [tree.create_node(file) for file in search if file['_source']['DS_Type'] != 'file']
 
     # base case for recursion
     if tree.root == 'null':
