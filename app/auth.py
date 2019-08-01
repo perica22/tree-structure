@@ -16,7 +16,7 @@ def verify_mode_variable(function):
         if not ENVIRONMENT:
             error = "You need to provide MODE variable"
 
-        if ENVIRONMENT not in ['files', 'files_and_folders']:
+        elif ENVIRONMENT not in ['files', 'files_and_folders']:
             error = "MODE variable must be set to files or files_and_folders"
 
         return function(error)
