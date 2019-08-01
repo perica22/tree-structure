@@ -35,7 +35,13 @@ def recursive_query_maker(function):
     def decorated(tree):
         tree_root = tree.root
         if ENVIRONMENT == 'files':
-            query = {"query" : {"match" : {"_id" : tree_root}}}
+            query = {
+                "query" : {
+                    "match" : {
+                        "_id" : tree_root
+                    }
+                }
+            }
         else:
             query = {
                 "query": {
