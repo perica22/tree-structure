@@ -1,4 +1,3 @@
-
 class Tree:
     """
     Class handling tree structure creation
@@ -17,10 +16,6 @@ class Tree:
     def create_node(self, data):
         """
         Creates tree node
-        Args:
-            data: query result used to create node
-        Returns:
-            new tree node
         """
         node = data["_source"]
         node["_id"] = data["_id"]
@@ -31,14 +26,12 @@ class Tree:
 
         return node
 
-    def _determine_pointer(self, node):
+    def _determine_pointer(self, parent_id):
         """
-        Changes tree pointer based on new node values
-        Args:
-            node: tree node that needs to be added to structure
+        Changes tree pointer based on parent values
         """
         for file in self.pointer:
-            if file['_id'] == node['DS_Parent']:
+            if file['_id'] == parent_id:
                 self.pointer = file['children']
 
     def reset_values(self):
@@ -59,7 +52,7 @@ class Tree:
                 self.structure.append(node)
             else:
                 if node['DS_Parent'] != self.pointer[0]['DS_Parent']:
-                    self._determine_pointer(node)
+                    self._determine_pointer(node['DS_Parent'])
 
                 file_already_in_tree = False
                 for file in self.pointer:
@@ -69,16 +62,14 @@ class Tree:
                 if not file_already_in_tree:
                     self.pointer.append(node)
 
-    def _determine_root(self, new_parent):
+    def _determine_root(self, parent_id):
         """
-        Setting tree root after each new node created
-        Args:
-            new_parent: value of new tree root
+        Setting tree root after each new node is created
         """
         if not self.root:
-            self.root = int(new_parent)
-        elif new_parent != 'null' and self.root != 'null':
-            if self.root > int(new_parent):
-                self.root = int(new_parent)
+            self.root = int(parent_id)
+        elif parent_id != 'null' and self.root != 'null':
+            if self.root > int(parent_id):
+                self.root = int(parent_id)
         else:
             self.root = 'null'
