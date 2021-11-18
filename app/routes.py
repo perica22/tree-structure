@@ -35,15 +35,12 @@ def search_api(error):
 
     # instance of tree class
     tree = Tree(leafs=search)
-
     for file in tree.leafs:
         nodes = [tree.create_node(file)]
 
         # calling this function recursivly to create tree
         create_tree(tree)
         tree.add_node(nodes)
-
-        # resetting tree settings
         tree.reset_values()
 
     return jsonify(tree.structure), 200
@@ -59,9 +56,15 @@ def create_tree(tree, query=None):
     Returns:
         path for one file from tree.leaf
     """
-    search = ES.search(index="documents", body=query, sort="_id:asc")["hits"]["hits"]
-
-    nodes = [tree.create_node(file) for file in search if file['_source']['DS_Type'] != 'file']
+    search = ES.search(
+        index="documents",
+        body=query,
+        sort="_id:asc"
+    )["hits"]["hits"]
+    nodes = [
+        tree.create_node(file)
+        for file in search if file['_source']['DS_Type'] != 'file'
+    ]
 
     # base case for recursion
     if tree.root == 'null':
@@ -69,7 +72,6 @@ def create_tree(tree, query=None):
 
     structure = create_tree(tree)
     tree.add_node(nodes)
-
     return structure
 
 
